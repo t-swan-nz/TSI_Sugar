@@ -11,8 +11,15 @@ library(readxl)
 import the data
 ```{r}
 sample_list_4411_4494 <- read.csv("4411-4494_R.csv")
-
 sample_list_4495_4536 <- read.csv("4495-4536_R.csv")
+sample_list_4537_4578 <- read.csv("4537-4578_R.csv")
+sample_list_4579_4620 <- read.csv("4579-4620_R.csv")
+
+sample_list_4735_4818 <- read.csv("4735-4818_R.csv")
+sample_list_4819_4854 <- read.csv("4819-4854_R.csv")
+sample_list_4855_4896 <- read.csv("4855-4896_R.csv")
+  
+  
 ```
 
 
@@ -20,13 +27,15 @@ merge all the relevant lab data to one sheet and rename columns that you will us
 ```{r}
 
 
-lab_plate_2021 <- bind_rows(sample_list_4411_4494, sample_list_4495_4536) %>%
-  group_by(Unique_ID) %>% summarise(mean(Average.over.replicates.based.on.Raw.Data..630.), mean(Fructose.concentration..ug.uL.)) 
+lab_plate_2021 <- bind_rows(sample_list_4411_4494, sample_list_4495_4536, sample_list_4537_4578, sample_list_4579_4620, sample_list_4735_4818, sample_list_4819_4854, sample_list_4855_4896) %>%
+  group_by(Unique.ID) %>% summarise(mean(Average.over.replicates.based.on.Raw.Data..630.), mean(Fructose.concentration..ug.uL.)) 
 
 #rename the columns
 
+names(lab_plate_2021)[1] = "Unique_ID"
 names(lab_plate_2021)[2] = "mean_absorbance"
 names(lab_plate_2021)[3] = "fructose_concentration_ug_ul"
+
   
 ```
 
@@ -50,4 +59,7 @@ field_lab_march_2021 <- write.csv(field_lab_2021, file = "field_lab_March2021.cs
 
 #don't forget to save this as a xlsx
 ```
+
+
+
 
