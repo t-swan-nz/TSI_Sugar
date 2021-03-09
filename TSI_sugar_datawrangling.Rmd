@@ -11,6 +11,7 @@ library(tidyverse)
 library(ggplot2)
 #install.packages("readxl")
 library(readxl)
+
 ```
 
 import the data
@@ -51,7 +52,8 @@ field_lab_2021 <- merge(lab_plate_2021, field_plate_2021, by.x=c("Unique_ID"), b
 
 Convert this to an excel file
 ```{r}
-best_field_lab_2021 <- write_csv(field_lab_2021, file = "best_field_lab_2021.csv", row.names = F)
+field_lab_march_2021 <- write.csv(field_lab_2021, file = "field_lab_March2021.csv", row.names = F)
 
+#don't forget to save this as a xlsx
 ```
 
