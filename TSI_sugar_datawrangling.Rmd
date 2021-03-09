@@ -1,0 +1,57 @@
+---
+title: "Untitled"
+author: "Tom Swan"
+date: "09/03/2021"
+output: html_document
+---
+
+Load packages
+```{r}
+library(tidyverse)
+library(ggplot2)
+#install.packages("readxl")
+library(readxl)
+```
+
+import the data
+```{r}
+sample_list_4411_4494 <- read.csv("4411-4494_R.csv")
+
+sample_list_4495_4536 <- read.csv("4495-4536_R.csv")
+```
+
+
+merge all the relevant lab data to one sheet and rename columns that you will use in analysis
+```{r}
+
+
+lab_plate_2021 <- bind_rows(sample_list_4411_4494, sample_list_4495_4536) %>%
+  group_by(Unique_ID) %>% summarise(mean(Average.over.replicates.based.on.Raw.Data..630.), mean(Fructose.concentration..ug.uL.)) 
+
+#rename the columns
+
+names(lab_plate_2021)[2] = "mean_absorbance"
+names(lab_plate_2021)[3] = "fructose_concentration_ug_ul"
+  
+```
+
+Read in the field data
+```{r}
+
+field_plate_2021 <- read_excel("C:/Users/jc486631/OneDrive - James Cook University/Chapter 3 - sugar feeding/Analysis/Lab.Field.Analysis/data2021/TSI_sugar/Sugar_mosquito_collections_form_2020_Long format2.xlsx", sheet = "Sugar_mosquito_collections_form")
+
+```
+
+Merge lab data with field data
+```{r}
+
+field_lab_2021 <- merge(lab_plate_2021, field_plate_2021, by.x=c("Unique_ID"), by.y=c("Unique_ID"), all.x=T)
+
+```
+
+Convert this to an excel file
+```{r}
+best_field_lab_2021 <- write_csv(field_lab_2021, file = "best_field_lab_2021.csv", row.names = F)
+
+```
+
