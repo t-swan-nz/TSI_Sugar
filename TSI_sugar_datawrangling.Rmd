@@ -8,35 +8,20 @@ library(readxl)
 
 ```
 
-import the data
-```{r}
-sample_list_4411_4494 <- read.csv("4411-4494_R.csv")
-sample_list_4495_4536 <- read.csv("4495-4536_R.csv")
-sample_list_4537_4578 <- read.csv("4537-4578_R.csv")
-sample_list_4579_4620 <- read.csv("4579-4620_R.csv")
-
-sample_list_4735_4818 <- read.csv("4735-4818_R.csv")
-sample_list_4819_4854 <- read.csv("4819-4854_R.csv")
-sample_list_4855_4896 <- read.csv("4855-4896_R.csv")
-  
-  
-```
-
-
-merge all the relevant lab data to one sheet and rename columns that you will use in analysis
+Importing all the data and taking the average of the absorbance and fructose concentration for each individual
 ```{r}
 
+sample_data_TSI <- list.files(pattern = "*.csv") %>%
+  map_df(~read.csv(.)) %>%
+  group_by(Unique.ID) %>% summarise(mean(Average.over.replicates.based.on.Raw.Data..630.), mean(Fructose.concentration..ug.uL.))
 
-lab_plate_2021 <- bind_rows(sample_list_4411_4494, sample_list_4495_4536, sample_list_4537_4578, sample_list_4579_4620, sample_list_4735_4818, sample_list_4819_4854, sample_list_4855_4896) %>%
-  group_by(Unique.ID) %>% summarise(mean(Average.over.replicates.based.on.Raw.Data..630.), mean(Fructose.concentration..ug.uL.)) 
 
-#rename the columns
+names(sample_data_TSI)[1] = "Unique_ID"
+names(sample_data_TSI)[2] = "mean_absorbance"
+names(sample_data_TSI)[3] = "fructose_concentration_ug_ul"
 
-names(lab_plate_2021)[1] = "Unique_ID"
-names(lab_plate_2021)[2] = "mean_absorbance"
-names(lab_plate_2021)[3] = "fructose_concentration_ug_ul"
 
-  
+
 ```
 
 Read in the field data
@@ -49,7 +34,7 @@ field_plate_2021 <- read_excel("C:/Users/jc486631/OneDrive - James Cook Universi
 Merge lab data with field data
 ```{r}
 
-field_lab_2021 <- merge(lab_plate_2021, field_plate_2021, by.x=c("Unique_ID"), by.y=c("Unique_ID"), all.x=T)
+field_lab_2021 <- merge(sample_data_TSI, field_plate_2021, by.x=c("Unique_ID"), by.y=c("Unique_ID"), all.x=T)
 
 ```
 
