@@ -1,3 +1,4 @@
+Script runs through data merging processess undertaken to merge the field and lab data. 
 
 Load packages
 ```{r}
@@ -20,7 +21,13 @@ names(sample_data_TSI)[1] = "Unique_ID"
 names(sample_data_TSI)[2] = "mean_absorbance"
 names(sample_data_TSI)[3] = "fructose_concentration_ug_ul"
 
+#to get a print out of only the negative controls
 
+negative_controls_sample_data_TSI <- list.files(pattern = "*.csv") %>%
+  map_df(~read.csv(.)) %>%
+  group_by(Unique.ID)
+
+write.csv(negative_controls_sample_data_TSI, file = "negative_controls.csv", row.names = F)
 
 ```
 
@@ -40,7 +47,7 @@ field_lab_2021 <- merge(sample_data_TSI, field_plate_2021, by.x=c("Unique_ID"), 
 
 Convert this to an excel file
 ```{r}
-field_lab_march_2021 <- write.csv(field_lab_2021, file = "field_lab_March2021.csv", row.names = F)
+field_lab_march_2021 <- write.csv(field_lab_2021, file = "field_lab_March2021_zero_intercept.csv", row.names = F)
 
 #don't forget to save this as a xlsx
 ```
