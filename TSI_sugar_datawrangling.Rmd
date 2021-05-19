@@ -6,7 +6,7 @@ library(tidyverse)
 library(ggplot2)
 #install.packages("readxl")
 library(readxl)
-
+library(purrr)
 ```
 
 Importing all the data and taking the average of the absorbance and fructose concentration for each individual
@@ -16,9 +16,8 @@ sample_data_TSI <- list.files(pattern = "*.csv") %>%
   map_df(~read.csv(.)) %>%
   group_by(Unique.ID) %>% summarise(mean(Average.over.replicates.based.on.Raw.Data..630.), mean(Fructose.concentration..ug.uL.))
 
-
 names(sample_data_TSI)[1] = "Unique_ID"
-names(sample_data_TSI)[2] = "mean_absorbance"
+names(sample_data_TSI)[2] = "corrected_absorbance"
 names(sample_data_TSI)[3] = "fructose_concentration_ug_ul"
 
 #to get a print out of only the negative controls
@@ -33,15 +32,38 @@ write.csv(negative_controls_sample_data_TSI, file = "negative_controls.csv", row
 
 Read in the field data
 ```{r}
+#read in the field data (wide format)
+field_plate_wide_2021 <- read_excel("C:/Users/jc486631/OneDrive - James Cook University/Chapter 3 - sugar feeding/Analysis/Lab.Field.Analysis/data2021/TSI_sugar/TSI_sugar_wide_format.xlsx", sheet = "Sheet1")
 
+
+
+
+#field_plate_wide_2021_b <- read_excel("C:/Users/jc486631/OneDrive - James Cook University/Chapter 3 - sugar feeding/Analysis/Lab.Field.Analysis/data2021/TSI_sugar/TSI_sugar_wide_format.xlsx", sheet = "Sheet1")
+
+
+TSI_sugar_wide_format_i <- list()
+for (i in 1:10) {
+  TSI_sugar_wide_format_i[[i]] <- 
+    field_plate_wide_2021 %>% 
+    select(ProjectID:Station, ends_with(paste(i))) %>% 
+    rename(Unique_ID = starts_with("StorageBarcode"),
+           Contents = starts_with("Contents"))
+}
+final_data <- do.call("rbind",TSI_sugar_wide_format_i) %>% 
+  arrange(Unique_ID)
+
+#original
 field_plate_2021 <- read_excel("C:/Users/jc486631/OneDrive - James Cook University/Chapter 3 - sugar feeding/Analysis/Lab.Field.Analysis/data2021/TSI_sugar/Sugar_mosquito_collections_form_2020_Long format2.xlsx", sheet = "Sugar_mosquito_collections_form")
 
 ```
 
 Merge lab data with field data
 ```{r}
-
+#original
 field_lab_2021 <- merge(sample_data_TSI, field_plate_2021, by.x=c("Unique_ID"), by.y=c("Unique_ID"), all.x=T)
+
+#with weather
+field_lab_2021b <- merge(sample_data_TSI, final_data, by.x=c("Unique_ID"), by.y=c("Unique_ID"), all.x=T)
 
 ```
 
@@ -50,6 +72,9 @@ Convert this to an excel file
 field_lab_march_2021 <- write.csv(field_lab_2021, file = "field_lab_March2021_zero_intercept.csv", row.names = F)
 
 #don't forget to save this as a xlsx
+
+
+
 ```
 
 
